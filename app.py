@@ -7,9 +7,9 @@ import pandas as pd
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import pytz
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
 import requests
 
 # ================= LOAD ENV =================
@@ -70,29 +70,27 @@ def get_indian_time():
     return datetime.now(india)
 
 # ================= EMAIL =================
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+
 def send_email(to_email, subject, body):
     try:
-        msg = MIMEMultipart()
-        msg["From"] = EMAIL_ADDRESS
-        msg["To"] = to_email
-        msg["Subject"] = subject
-        msg.attach(MIMEText(body, "plain"))
+        message = Mail(
+            from_email=EMAIL_ADDRESS,  # must be verified sender
+            to_emails=to_email,
+            subject=subject,
+            plain_text_content=body
+        )
 
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
 
-        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-
-        print("✅ Email sent successfully")
+        print("✅ SendGrid Email sent:", response.status_code)
         return True
 
     except Exception as e:
-        print("❌ Email Error:", str(e))
+        print("❌ SendGrid Error:", str(e))
         return False
+
 
 # ================= SMS =================
 
