@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Nearby Hospitals | MedVice{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+#map {
+    height: 500px;
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="container hero-content">
+        <h2>Nearby Hospitals</h2>
+        <p>Find hospitals near your current location.</p>
+    </div>
+</section>
+
+<div class="container" style="margin-bottom: 80px;">
+    <div id="map"></div>
+</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    if (!navigator.geolocation) {
+        alert("Geolocation not supported.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(showMap, function() {
+        alert("Please allow location access.");
+    });
+
+    function showMap(position) {
+
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        const map = L.map('map').setView([lat, lon], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker([lat, lon]).addTo(map)
+            .bindPopup("You are here")
+            .openPopup();
+
+        const query = `
+            [out:json];
+            (
+              node["amenity"="hospital"](around:3000, ${lat}, ${lon});
+              way["amenity"="hospital"](around:3000, ${lat}, ${lon});
+              relation["amenity"="hospital"](around:3000, ${lat}, ${lon});
+            );
+            out center;
+        `;
+
+        fetch("https://overpass-api.de/api/interpreter", {
+            method: "POST",
+            body: query
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            if (!data.elements.length) {
+                alert("No hospitals found nearby.");
+                return;
+            }
+
+            data.elements.forEach(hospital => {
+
+                const coords = hospital.type === "node"
+                    ? [hospital.lat, hospital.lon]
+                    : [hospital.center.lat, hospital.center.lon];
+
+                const name = hospital.tags?.name || "Unnamed Hospital";
+
+                L.marker(coords)
+                    .addTo(map)
+                    .bindPopup(`<b>${name}</b>`);
+            });
+
+        })
+        .catch(err => {
+            console.log("Overpass API error:", err);
+        });
+    }
+
+});
+</script>
+{% endblock %}

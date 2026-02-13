@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block title %}Nearby Hospitals | MedVice{% endblock %}
+
+{% block content %}
+
+<style>
+.page-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    background-color: #eee;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    margin-right: 5px;
+    font-weight: 500;
+}
+
+.tab.active {
+    background-color: #1d3557;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Hospital Cards */
+.hospital-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+.hospital-card h3 {
+    margin-top: 0;
+    color: #1d3557;
+}
+
+.hospital-card a {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #1d3557;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+.hospital-card a:hover {
+    opacity: 0.9;
+}
+</style>
+
+<section class="hero">
+    <div class="container hero-content">
+        <h2>Find Hospitals</h2>
+        <p>Search nearby hospitals or explore featured hospitals.</p>
+    </div>
+</section>
+
+<div class="page-container">
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('nearby', this)">
+            Nearby Hospitals
+        </div>
+        <div class="tab" onclick="switchTab('featured', this)">
+            Featured Hospitals
+        </div>
+    </div>
+
+    <!-- 🔹 TAB 1: Nearby Hospitals -->
+    <div id="nearby" class="tab-content active">
+        <div id="hospitalResults">
+            <p>Loading nearby hospitals...</p>
+        </div>
+    </div>
+
+    <!-- 🔹 TAB 2: Featured Hospitals -->
+    <div id="featured" class="tab-content">
+
+        <div class="hospital-card">
+            <h3>Apollo Hospitals</h3>
+            <p><strong>Address:</strong> Hyderabad, Telangana</p>
+            <p><strong>Contact:</strong> +91-40-2360-7777</p>
+            <a href="https://www.apollohospitals.com/book-an-appointment/" target="_blank">
+                Book Online
+            </a>
+        </div>
+
+        <div class="hospital-card">
+            <h3>Fortis Hospital</h3>
+            <p><strong>Address:</strong> New Delhi</p>
+            <p><strong>Contact:</strong> +91-11-4277-6222</p>
+            <a href="https://www.fortishealthcare.com/book-appointment" target="_blank">
+                Book Online
+            </a>
+        </div>
+
+        <div class="hospital-card">
+            <h3>Manipal Hospital</h3>
+            <p><strong>Address:</strong> Bengaluru</p>
+            <p><strong>Contact:</strong> +91-80-2502-4444</p>
+            <a href="https://www.manipalhospitals.com/book-appointment/" target="_blank">
+                Book Online
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* Tab Switch */
+function switchTab(tabId, tabElement) {
+
+    const contents = document.getElementsByClassName("tab-content");
+    for (let i = 0; i < contents.length; i++) {
+        contents[i].classList.remove("active");
+    }
+
+    const tabs = document.getElementsByClassName("tab");
+    for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove("active");
+    }
+
+    document.getElementById(tabId).classList.add("active");
+    tabElement.classList.add("active");
+}
+
+
+/* Fetch Nearby Hospitals */
+function fetchHospitals(lat, lon) {
+
+    const radius = 3000;
+
+    const query = `
+        [out:json];
+        (
+          node["amenity"="hospital"](around:${radius},${lat},${lon});
+          way["amenity"="hospital"](around:${radius},${lat},${lon});
+          relation["amenity"="hospital"](around:${radius},${lat},${lon});
+        );
+        out center tags;
+    `;
+
+    fetch("https://overpass-api.de/api/interpreter", {
+        method: "POST",
+        body: query,
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        const container = document.getElementById("hospitalResults");
+        container.innerHTML = "";
+
+        if (!data.elements || data.elements.length === 0) {
+            container.innerHTML = "<p>No hospitals found nearby.</p>";
+            return;
+        }
+
+        data.elements.forEach(el => {
+
+            const name = el.tags.name || "Unnamed Hospital";
+            const website = el.tags.website;
+            const address =
+                el.tags["addr:full"] ||
+                el.tags["addr:street"] ||
+                "Address not available";
+
+            const div = document.createElement("div");
+            div.className = "hospital-card";
+
+            let action;
+
+            if (website) {
+                action = `<a href="${website}" target="_blank">Book Online</a>`;
+            } else {
+                action = `<p><strong>Please visit hospital directly.</strong></p>`;
+            }
+
+            div.innerHTML = `
+                <h3>${name}</h3>
+                <p><strong>Address:</strong> ${address}</p>
+                ${action}
+            `;
+
+            container.appendChild(div);
+        });
+    })
+    .catch(() => {
+        document.getElementById("hospitalResults").innerHTML =
+            "<p>Could not load hospitals. Please try again later.</p>";
+    });
+}
+
+
+/* Get Location */
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+        pos => {
+            fetchHospitals(pos.coords.latitude, pos.coords.longitude);
+        },
+        () => {
+            document.getElementById("hospitalResults").innerHTML =
+                "<p>Please allow location access to see nearby hospitals.</p>";
+        }
+    );
+} else {
+    document.getElementById("hospitalResults").innerHTML =
+        "<p>Your browser does not support geolocation.</p>";
+}
+
+</script>
+
+{% endblock %}

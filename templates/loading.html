@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading | MedVice</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Outfit Font Only -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-family: 'Outfit', sans-serif;
+            background: #0f172a; /* Dark Navy */
+            color: #e2e8f0;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        .spinner {
+            width: 65px;
+            height: 65px;
+            border: 6px solid rgba(255,255,255,0.15);
+            border-top: 6px solid #38bdf8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 25px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        h2 {
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        p {
+            font-size: 14px;
+            opacity: 0.7;
+            max-width: 300px;
+        }
+
+        .dot-animation::after {
+            content: "";
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0% { content: ""; }
+            33% { content: "."; }
+            66% { content: ".."; }
+            100% { content: "..."; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo">MedVice</div>
+
+    <div class="spinner"></div>
+
+    <h2>Waking up server<span class="dot-animation"></span></h2>
+    <p>Please wait a few seconds while we get everything ready for you.</p>
+
+    <script>
+        function checkServer() {
+            fetch("/home", { method: "HEAD" })
+                .then(() => {
+                    window.location.href = "/home";
+                })
+                .catch(() => {
+                    setTimeout(checkServer, 3000);
+                });
+        }
+
+        checkServer();
+    </script>
+
+</body>
+</html>

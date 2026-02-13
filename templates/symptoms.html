@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Check Symptoms | MedVice{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+.ai-badge {
+    background-color: #4caf50;
+    color: white;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-left: 10px;
+}
+
+.example-tag {
+    display: inline-block;
+    background-color: #f1f1f1;
+    padding: 6px 12px;
+    margin: 4px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.2s;
+}
+
+.example-tag:hover {
+    background-color: #e0e0e0;
+}
+
+.symptoms-help {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #666;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="container hero-content">
+        <h2>Enter Your Symptoms <span class="ai-badge">AI Powered</span></h2>
+        <p>Describe your symptoms and we'll help you find suitable medicine and advice.</p>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+       <form action="{{ url_for('symptoms') }}" method="POST"
+      style="max-width: 850px; margin: auto; background: white;
+             padding: 45px; border-radius: 16px; box-shadow: var(--shadow);">
+
+    <label for="symptoms" style="font-size: 1.1rem;">
+        <strong>Symptoms (separated by commas)</strong>
+    </label>
+
+    <textarea id="symptoms" name="symptoms" rows="6" required
+        style="width: 100%; padding: 16px; border: 1px solid #ccc;
+               border-radius: 10px; font-size: 1rem; margin-top:10px;"
+        placeholder="e.g., fever, cough, headache, fatigue"></textarea>
+
+    <div class="symptoms-help" style="margin-top: 20px;">
+        <p><strong>How to describe your symptoms:</strong></p>
+        <p>
+            You can enter medical terms or describe how you feel in your own words.
+            Our AI will analyze your symptoms even if they are not in our standard database.
+        </p>
+
+        <p style="margin-top:10px;"><strong>Quick examples to try:</strong></p>
+    </div>
+
+    <div style="margin-top: 15px;">
+        <span class="example-tag">fever, cough, fatigue</span>
+        <span class="example-tag">headache, dizziness, blurred vision</span>
+        <span class="example-tag">sore throat, runny nose</span>
+        <span class="example-tag">I feel dizzy when standing up quickly</span>
+        <span class="example-tag">My joints hurt when walking</span>
+    </div>
+
+    <button type="submit" class="btn"
+            style="margin-top:30px; padding:14px 28px; font-size:1rem;">
+        Get Diagnosis
+    </button>
+</form>
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<script>
+$(document).ready(function() {
+
+    var availableSymptoms = {{ all_symptoms|default([])|tojson }};
+
+    function extractLast(term) {
+        return term.split(/,\s*/).pop();
+    }
+
+    $("#symptoms")
+    .on("keydown", function(event) {
+        if (event.keyCode === $.ui.keyCode.TAB &&
+            $(this).autocomplete("instance").menu.active) {
+            event.preventDefault();
+        }
+    })
+    .autocomplete({
+        minLength: 1,
+        source: function(request, response) {
+            var term = extractLast(request.term.toLowerCase());
+            response($.ui.autocomplete.filter(availableSymptoms, term));
+        },
+        focus: function() { return false; },
+        select: function(event, ui) {
+            var terms = this.value.split(/,\s*/);
+            terms.pop();
+            terms.push(ui.item.value);
+            terms.push("");
+            this.value = terms.join(", ");
+            return false;
+        }
+    });
+
+    $(".example-tag").click(function() {
+        $("#symptoms").val($(this).text());
+    });
+
+});
+</script>
+{% endblock %}

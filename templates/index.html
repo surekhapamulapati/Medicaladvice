@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}MedVice - Your Health Companion{% endblock %}
+
+{% block content %}
+{% block extra_css %}
+<style>
+
+/* Hero Button */
+.hero .btn {
+    background-color: #1d3557;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background 0.3s ease;
+}
+
+.hero .btn:hover {
+    background-color: #457b9d;
+}
+
+/* CTA Section FIX */
+.cta-section {
+    background-color: #43546c;   /* Dark blue */
+    padding: 70px 0;
+    text-align: center;
+}
+
+.cta-section h3 {
+    color: white;
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.cta-section p {
+    color: #dbe4f0;
+    max-width: 700px;
+    margin: 0 auto 25px auto;
+}
+
+.cta-section .btn-white {
+    background-color: white;
+    color: #1d3557;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-weight: 600;
+}
+
+.cta-section .btn-white:hover {
+    background-color: #f1f1f1;
+}
+
+</style>
+{% endblock %}
+
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h2>Your Personal Health Companion</h2>
+            <p>
+                Get personalized medicine recommendations based on your symptoms.
+                Locate nearby hospitals and receive expert advice to manage your health effectively.
+            </p>
+            <a href="{{ url_for('register') }}" class="btn">Get Started</a>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <div class="section-title">
+            <h3>How MedVice Helps You</h3>
+            <p>
+                Discover our range of features designed to provide you with
+                personalized healthcare guidance
+            </p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="card-content">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-pills"></i>
+                    </div>
+                    <h4 class="feature-title">Medicine Recommendations</h4>
+                    <p>Get personalized medicine recommendations based on your symptoms.</p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-content">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    <h4 class="feature-title">Diet Suggestions</h4>
+                    <p>Receive customized diet plans that complement your treatment.</p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-content">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-dumbbell"></i>
+                    </div>
+                    <h4 class="feature-title">Exercise Routines</h4>
+                    <p>Access tailored workout routines designed to improve your health.</p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-content">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-hospital"></i>
+                    </div>
+                    <h4 class="feature-title">Nearby Hospitals</h4>
+                    <p>Quickly locate the nearest healthcare facilities.</p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-content">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    <h4 class="feature-title">Email Updates</h4>
+                    <p>Receive your health recommendations directly to your email.</p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-content">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-shield-virus"></i>
+                    </div>
+                    <h4 class="feature-title">Health Precautions</h4>
+                    <p>Learn preventive measures to protect yourself.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+{% endblock %}
