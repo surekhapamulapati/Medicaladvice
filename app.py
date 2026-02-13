@@ -260,6 +260,10 @@ def hybrid_diagnosis(symptoms_input):
         return call_ai(symptoms_input)
 
 # ================= ROUTES =================
+@app.route("/health")
+def health():
+    return "OK", 200
+
 @app.route("/")
 def root():
     return render_template("loading.html")
