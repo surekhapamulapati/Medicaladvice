@@ -39,6 +39,31 @@ users_collection = db["users"]
 results_collection = db["diagnosis_results"]
 contacts_collection = db["contacts"]
 
+# ================= LOAD DATASETS ONCE =================
+training_df = None
+description_df = None
+medication_df = None
+diet_df = None
+workout_df = None
+precautions_df = None
+
+try:
+    training_df = pd.read_csv("datasets/Training.csv")
+    training_df.fillna(0, inplace=True)
+    training_df.columns = training_df.columns.str.strip().str.lower()
+
+    description_df = pd.read_csv("datasets/description.csv")
+    medication_df = pd.read_csv("datasets/medications.csv")
+    diet_df = pd.read_csv("datasets/diets.csv")
+    workout_df = pd.read_csv("datasets/workout_df.csv")
+    precautions_df = pd.read_csv("datasets/precautions_df.csv")
+
+    print("✅ All datasets loaded successfully")
+
+except Exception as e:
+    print("❌ Dataset loading error:", str(e))
+
+
 # ================= TIME =================
 def get_indian_time():
     india = pytz.timezone("Asia/Kolkata")
@@ -360,12 +385,35 @@ def symptoms():
     return render_template("symptoms.html", all_symptoms=all_symptoms)
 
 # ================= RESULTS =================
+
+def render_ai_result(symptoms_input):
+
+    ai_result = call_ai(symptoms_input)
+
+    return render_template(
+        "results.html",
+        prediction=ai_result["prediction"],
+        description=ai_result["description"],
+        medications=ai_result["medications"],
+        diets=ai_result["diets"],
+        workouts=ai_result["workouts"],
+        precautions=ai_result["precautions"],
+        ai_powered=True
+    )
+
 @app.route("/results")
 def results():
+
+    global training_df, description_df, medication_df, diet_df, workout_df, precautions_df
 
     symptoms_input = session.get("symptoms_input", "")
     if not symptoms_input:
         return redirect(url_for("symptoms"))
+
+    # 🔥 If dataset failed to load, fallback to AI
+    if training_df is None:
+        print("⚠ Dataset not loaded → Using AI")
+        return render_ai_result(symptoms_input)
 
     symptoms = [
         s.strip().lower().replace(" ", "_")
@@ -374,47 +422,25 @@ def results():
     ]
 
     try:
-        training_df = pd.read_csv("datasets/Training.csv")
-        training_df.fillna(0, inplace=True)
-
-        # Normalize column names
-        training_df.columns = training_df.columns.str.strip().str.lower()
-
         all_symptoms = training_df.columns[:-1]
-
-        # Find matched symptoms
         matched_symptoms = [s for s in symptoms if s in all_symptoms]
 
-        print("User Symptoms:", symptoms)
-        print("Matched Symptoms:", matched_symptoms)
-
-        # ---------------------------
-        # 🔥 LOGIC YOU WANT
-        # ---------------------------
-        # If NO matched symptoms → use AI
         if len(matched_symptoms) == 0:
-            print("⚠ No dataset match → Using AI")
             return render_ai_result(symptoms_input)
 
-        # If matched → use dataset
-        training_df["match_count"] = training_df[matched_symptoms].sum(axis=1)
-        best_match = training_df.sort_values(
-            by="match_count", ascending=False
+        # ✅ DO NOT modify global dataframe
+        temp_df = training_df.copy()
+        temp_df["match_count"] = temp_df[matched_symptoms].sum(axis=1)
+
+        best_match = temp_df.sort_values(
+            by="match_count",
+            ascending=False
         ).iloc[0]
 
-        # If somehow match_count = 0 → fallback AI
         if best_match["match_count"] == 0:
-            print("⚠ Match count zero → Using AI")
             return render_ai_result(symptoms_input)
 
         predicted_disease = best_match["prognosis"].strip().lower()
-
-        # Load other datasets
-        description_df = pd.read_csv("datasets/description.csv")
-        medication_df = pd.read_csv("datasets/medications.csv")
-        diet_df = pd.read_csv("datasets/diets.csv")
-        workout_df = pd.read_csv("datasets/workout_df.csv")
-        precautions_df = pd.read_csv("datasets/precautions_df.csv")
 
         def get_info(df):
             match = df[df["Disease"].str.strip().str.lower() == predicted_disease]
@@ -430,6 +456,7 @@ def results():
         desc_row = description_df[
             description_df["Disease"].str.strip().str.lower() == predicted_disease
         ]
+
         description = (
             desc_row["Description"].values[0]
             if not desc_row.empty
@@ -453,23 +480,8 @@ def results():
         )
 
     except Exception as e:
-        print("Dataset Error:", e)
+        print("❌ Dataset Error:", str(e))
         return render_ai_result(symptoms_input)
-
-def render_ai_result(symptoms_input):
-
-    ai_result = call_ai(symptoms_input)
-
-    return render_template(
-        "results.html",
-        prediction=ai_result["prediction"],
-        description=ai_result["description"],
-        medications=ai_result["medications"],
-        diets=ai_result["diets"],
-        workouts=ai_result["workouts"],
-        precautions=ai_result["precautions"],
-        ai_powered=True
-    )
 
 
 # ================= SAVE RESULTS =================
