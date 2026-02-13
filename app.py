@@ -10,7 +10,6 @@ import pytz
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from twilio.rest import Client
 import requests
 
 # ================= LOAD ENV =================
@@ -21,10 +20,6 @@ MONGO_URI = os.getenv("MONGO_URI")
 
 EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
-
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 
 HF_API_KEY = os.getenv("HF_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -75,24 +70,6 @@ def send_email(to_email, subject, body):
         return False
 
 # ================= SMS =================
-def send_sms(to_number, message):
-    try:
-        if not to_number.startswith("+"):
-            to_number = "+91" + to_number
-
-        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-
-        client.messages.create(
-            body=message,
-            from_=TWILIO_PHONE_NUMBER,
-            to=to_number
-        )
-
-        print("✅ SMS sent")
-        return True
-    except Exception as e:
-        print("❌ SMS Error:", e)
-        return False
 
 # ================= HUGGINGFACE =================
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
@@ -496,7 +473,6 @@ def render_ai_result(symptoms_input):
 
 
 # ================= SAVE RESULTS =================
-# ================= SAVE RESULTS =================
 @app.route("/save_results", methods=["POST"])
 def save_results():
 
@@ -531,12 +507,8 @@ def save_results():
 
         user = users_collection.find_one({"_id": user_id})
 
-        email_status = False
-        sms_status = False
-
         if user:
 
-            # Format lists nicely for email
             med_list = "\n".join([f"- {med}" for med in medications]) if medications else "N/A"
             pre_list = "\n".join([f"- {pre}" for pre in precautions]) if precautions else "N/A"
             diet_list = "\n".join([f"- {diet}" for diet in diets]) if diets else "N/A"
@@ -572,33 +544,24 @@ Hello {user['full_name']},
 --------------------------------------------------
 
 ⚠️ Important:
-This report is generated for informational purposes only.
+This report is for informational purposes only.
 Please consult a certified medical professional.
 
 Stay healthy 💚
 Team MedVice
 """
 
-            # Send Email
             email_status = send_email(
                 user["email"],
                 f"🩺 MedVice Diagnosis Report - {prediction}",
                 email_body
             )
 
-            # Send Short SMS
-            sms_message = f"MedVice: Diagnosis {prediction}. Check email for details."
-            sms_status = send_sms(user["phone"], sms_message)
+            if email_status:
+                flash("Diagnosis saved and report sent to your email!", "success")
+            else:
+                flash("Diagnosis saved, but email sending failed.", "error")
 
-        # -------------------------------
-        # SMART FLASH NOTIFICATIONS
-        # -------------------------------
-        if email_status and sms_status:
-            flash("Diagnosis saved and report sent successfully!", "success")
-        elif email_status:
-            flash("Diagnosis saved. Email sent successfully!", "success")
-        elif user:
-            flash("Diagnosis saved, but notification sending failed.", "error")
         else:
             flash("Diagnosis saved successfully!", "success")
 
@@ -608,6 +571,7 @@ Team MedVice
         print("❌ Save Results Error:", str(e))
         flash("Failed to save diagnosis. Please try again.", "error")
         return redirect(url_for("results"))
+
 
 # ================= DASHBOARD =================
 @app.route("/dashboard")
