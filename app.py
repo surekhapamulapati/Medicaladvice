@@ -266,7 +266,7 @@ def health():
 
 @app.route("/")
 def root():
-    return render_template("loading.html")
+    return redirect(url_for("home"))
 
 @app.route("/home")
 def home():

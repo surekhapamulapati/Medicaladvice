@@ -15,98 +15,108 @@
 
 <!-- ================= HEADER ================= -->
 <header>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="flash-container">
-      {% for category, message in messages %}
-        <div class="flash-message {{ category }}">
-          <i class="fa-solid 
-            {% if category == 'success' %}fa-circle-check
-            {% elif category == 'error' %}fa-circle-xmark
-            {% else %}fa-circle-info
-            {% endif %}"></i>
-          <span>{{ message }}</span>
-        </div>
-      {% endfor %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-container">
+    {% for category, message in messages %}
+    <div class="flash-message {{ category }}">
+    
+    <div class="flash-left">
+        <i class="fa-solid 
+        {% if category == 'success' %}fa-circle-check
+        {% elif category == 'error' %}fa-circle-xmark
+        {% else %}fa-circle-info
+        {% endif %}"></i>
+
+        <span>{{ message }}</span>
     </div>
-  {% endif %}
-{% endwith %}
 
-    <div class="container">
-        <nav class="navbar">
+    <!-- CLOSE BUTTON -->
+    <button class="flash-close">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
 
-            <!-- Logo Left -->
-            <div class="logo">
-                <div class="logo-icon">
-                    <svg width="40" height="40" viewBox="0 0 40 40">
-                        <rect x="15" y="5" width="10" height="30" rx="2" fill="#1d3557"/>
-                        <rect x="5" y="15" width="30" height="10" rx="2" fill="#1d3557"/>
-                        <path class="heart-icon"
-                              d="M20 32C19.7 32 19.5 31.9 19.3 31.7C18.3 30.8 17.4 30 16.5 29.2C14.8 27.7 13.4 26.4 12.3 25.1C11 23.6 10 22.2 9.3 20.8C8.5 19.4 8.1 18 8.1 16.7C8.1 15.3 8.5 14 9.2 12.9C9.9 11.8 10.9 10.9 12.1 10.3C13.3 9.8 14.6 9.6 15.9 9.9C17 10.1 18 10.5 18.9 11.2C19.4 11.5 19.7 12 20 12.5C20.3 12 20.7 11.5 21.1 11.2C22 10.5 23 10.1 24.1 9.9C25.4 9.6 26.7 9.8 27.9 10.3C29.1 10.9 30.1 11.8 30.8 12.9C31.5 14 31.9 15.3 31.9 16.7C31.9 18 31.5 19.4 30.7 20.8C30 22.2 29 23.6 27.7 25.1C26.6 26.4 25.2 27.7 23.5 29.2C22.6 30 21.7 30.8 20.7 31.7C20.5 31.9 20.3 32 20 32Z"
-                              fill="#e74c3c"/>
-                    </svg>
-                </div>
-                <h1>MedVice</h1>
-            </div>
-            <!-- Mobile Menu Button -->
-<div class="mobile-toggle">
-    <i class="fa-solid fa-bars"></i>
 </div>
 
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
 
-            <!-- Right Side Links -->
-            <ul class="nav-links">
+<div class="container">
+<nav class="navbar">
 
-                {% if session.get('user_id') %}
+<!-- Logo -->
+<div class="logo">
+<div class="logo-icon">
+<svg width="40" height="40" viewBox="0 0 40 40">
+<rect x="15" y="5" width="10" height="30" rx="2" fill="#1d3557"/>
+<rect x="5" y="15" width="30" height="10" rx="2" fill="#1d3557"/>
+<path class="heart-icon"
+d="M20 32C19.7 32 19.5 31.9 19.3 31.7C18.3 30.8 17.4 30 16.5 29.2C14.8 27.7 13.4 26.4 12.3 25.1C11 23.6 10 22.2 9.3 20.8C8.5 19.4 8.1 18 8.1 16.7C8.1 15.3 8.5 14 9.2 12.9C9.9 11.8 10.9 10.9 12.1 10.3C13.3 9.8 14.6 9.6 15.9 9.9C17 10.1 18 10.5 18.9 11.2C19.4 11.5 19.7 12 20 12.5C20.3 12 20.7 11.5 21.1 11.2C22 10.5 23 10.1 24.1 9.9C25.4 9.6 26.7 9.8 27.9 10.3C29.1 10.9 30.1 11.8 30.8 12.9C31.5 14 31.9 15.3 31.9 16.7C31.9 18 31.5 19.4 30.7 20.8C30 22.2 29 23.6 27.7 25.1C26.6 26.4 25.2 27.7 23.5 29.2C22.6 30 21.7 30.8 20.7 31.7C20.5 31.9 20.3 32 20 32Z"
+fill="#e74c3c"/>
+</svg>
+</div>
+<h1>MedVice</h1>
+</div>
 
-                    <li><a href="{{ url_for('home') }}">Home</a></li>
-                    <li><a href="{{ url_for('symptoms') }}">Check Symptoms</a></li>
-                    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+<!-- Mobile Toggle -->
+<div class="mobile-toggle">
+<i class="fa-solid fa-bars"></i>
+</div>
 
-                    <!-- Services Dropdown -->
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle">
-                            Services <i class="fa-solid fa-chevron-down"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('map') }}">Nearby Hospitals</a></li>
-                            <li><a href="{{ url_for('appointment') }}">Book Appointment</a></li>
-                        </ul>
-                    </li>
+<!-- Nav Links -->
+<ul class="nav-links">
 
-                    <!-- User Dropdown -->
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle">
-                            <span class="user-circle">
-                                <i class="fa-solid fa-user"></i>
-                            </span>
-                            {{ session.get('full_name') }}
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('logout') }}">Logout</a></li>
-                        </ul>
-                    </li>
+{% if session.get('user_id') %}
 
-                {% else %}
+<li><a href="{{ url_for('home') }}">Home</a></li>
+<li><a href="{{ url_for('symptoms') }}">Check Symptoms</a></li>
+<li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
 
-                    <li><a href="{{ url_for('home') }}">Home</a></li>
-                    <li><a href="{{ url_for('about') }}">About</a></li>
-                    <li><a href="{{ url_for('services')}}">Services</a></li>
-                    <li><a href="{{ url_for('contact')}}">Contact</a></li>
-                    <li><a href="{{ url_for('login') }}">Login</a></li>
-                    <li><a href="{{ url_for('register') }}">Register</a></li>
+<li class="dropdown">
+<a href="#" class="dropdown-toggle">
+Services <i class="fa-solid fa-chevron-down"></i>
+</a>
+<ul class="dropdown-menu">
+<li><a href="{{ url_for('map') }}">Nearby Hospitals</a></li>
+<li><a href="{{ url_for('appointment') }}">Book Appointment</a></li>
+</ul>
+</li>
 
-                {% endif %}
+<li class="dropdown">
+<a href="#" class="dropdown-toggle">
+<span class="user-circle">
+<i class="fa-solid fa-user"></i>
+</span>
+{{ session.get('full_name') }}
+<i class="fa-solid fa-chevron-down"></i>
+</a>
 
-            </ul>
-        </nav>
-    </div>
+<ul class="dropdown-menu">
+<li><a href="{{ url_for('logout') }}">Logout</a></li>
+</ul>
+
+</li>
+
+{% else %}
+
+<li><a href="{{ url_for('home') }}">Home</a></li>
+<li><a href="{{ url_for('about') }}">About</a></li>
+<li><a href="{{ url_for('services')}}">Services</a></li>
+<li><a href="{{ url_for('contact')}}">Contact</a></li>
+<li><a href="{{ url_for('login') }}">Login</a></li>
+<li><a href="{{ url_for('register') }}">Register</a></li>
+
+{% endif %}
+
+</ul>
+</nav>
+</div>
 </header>
 
-
 {% block content %}{% endblock %}
-
 
 <!-- ================= FOOTER ================= -->
 <footer>
@@ -159,45 +169,84 @@
     </div>
 </footer>
 
+<!-- ================= SCRIPTS ================= -->
 
 <script>
 
-// Mobile menu toggle
-const mobileToggle = document.querySelector(".mobile-toggle");
-const navLinks = document.querySelector(".nav-links");
+/* FLASH AUTO CLOSE — GUARANTEED */
 
-if (mobileToggle) {
-    mobileToggle.addEventListener("click", function () {
-        navLinks.classList.toggle("active");
-    });
-}
+// Manual close button
+document.addEventListener("DOMContentLoaded", function() {
 
-document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".flash-close").forEach(function(btn){
 
-    const toggles = document.querySelectorAll(".dropdown-toggle");
+        btn.addEventListener("click", function(){
 
-    toggles.forEach(toggle => {
-        toggle.addEventListener("click", function (e) {
-            e.preventDefault();
-            const menu = this.nextElementSibling;
+            const flash = this.closest(".flash-message");
 
-            document.querySelectorAll(".dropdown-menu").forEach(drop => {
-                if (drop !== menu) drop.classList.remove("show");
-            });
+            flash.style.opacity = "0";
+            flash.style.transform = "translateX(120%)";
 
-            menu.classList.toggle("show");
+            setTimeout(function(){
+                flash.remove();
+            }, 300);
+
         });
-    });
 
-    document.addEventListener("click", function (e) {
-        if (!e.target.closest(".dropdown")) {
-            document.querySelectorAll(".dropdown-menu").forEach(drop => {
-                drop.classList.remove("show");
-            });
-        }
     });
 
 });
+
+/* MOBILE MENU */
+const mobileToggle = document.querySelector(".mobile-toggle");
+const navLinks = document.querySelector(".nav-links");
+
+if(mobileToggle){
+mobileToggle.addEventListener("click", function(){
+navLinks.classList.toggle("active");
+});
+}
+
+
+/* DROPDOWN */
+document.querySelectorAll(".dropdown-toggle").forEach(function(toggle){
+
+toggle.addEventListener("click", function(e){
+
+e.preventDefault();
+
+const menu = this.nextElementSibling;
+
+document.querySelectorAll(".dropdown-menu").forEach(function(m){
+if(m !== menu){
+m.classList.remove("show");
+}
+});
+
+menu.classList.toggle("show");
+
+});
+
+});
+
+
+/* CLOSE DROPDOWN OUTSIDE CLICK */
+document.addEventListener("click", function(e){
+
+if(!e.target.closest(".dropdown")){
+
+document.querySelectorAll(".dropdown-menu").forEach(function(menu){
+menu.classList.remove("show");
+});
+
+}
+
+});
+// auto close after 3 seconds
+setTimeout(function(){
+    document.querySelectorAll(".flash-message").forEach(f => f.remove());
+}, 3000);
+
 </script>
 
 {% block extra_js %}{% endblock %}

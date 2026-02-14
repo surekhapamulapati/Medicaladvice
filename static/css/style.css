@@ -556,3 +556,74 @@ footer {
         opacity: 1;
     }
 }
+/* Remove underline from dropdown menu links */
+.dropdown-menu a {
+    text-decoration: none;
+}
+
+/* Remove underline on hover */
+.dropdown-menu a:hover {
+    text-decoration: none;
+}
+
+/* Remove underline animation from dropdown menu links */
+.dropdown-menu a::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Also ensure no underline */
+.dropdown-menu a {
+    text-decoration: none !important;
+}
+/* Remove underline for dropdown toggle links (Services, User name) */
+.dropdown-toggle::after {
+    display: none !important;
+    content: none !important;
+}
+/* Center dropdown menu items */
+.dropdown-menu li {
+    padding: 10px 20px;
+    text-align: center;   /* centers Logout */
+}
+
+.dropdown-menu li a {
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+
+.flash-message {
+transition: all 0.5s ease;
+}
+
+.flash-message.hide {
+    opacity: 0;
+    transform: translateX(120%);
+    pointer-events: none;
+}
+.flash-message {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.flash-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.flash-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.flash-close:hover {
+    opacity: 0.7;
+}
